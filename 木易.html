@@ -162,7 +162,6 @@
             min-height: 100vh;
         }
 
-        /* 其他样式保持不变... */
         /* 侧边栏样式 */
         .sidebar {
             background-color: var(--sidebar-bg);
@@ -1017,10 +1016,10 @@
         };
         
         // 独立存储成功记录
-        let successRecords = JSON.parse(localStorage.getItem('permanentRecords') || [];
+        let successRecords = JSON.parse(localStorage.getItem('permanentRecords') || []);
         
-        // 卡密验证URL
-        const AUTH_URL = "https://lv521314.github.io/A270000a/00.txt";
+        // 卡密验证URL（添加随机参数防止缓存）
+        const AUTH_URL = "https://lv521314.github.io/A270000a/00.txt?_=" + Date.now();
         
         // DOM元素
         const loginContainer = document.getElementById('loginContainer');
@@ -1057,9 +1056,7 @@
         // 初始化
         document.addEventListener('DOMContentLoaded', function() {
             // 检查是否已登录
-            const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
-            
-            if (isLoggedIn) {
+            if (sessionStorage.getItem('isLoggedIn')) {
                 showApp();
             } else {
                 showLogin();
@@ -1067,20 +1064,19 @@
             
             setupEventListeners();
         });
-        
+
         // 显示登录界面
         function showLogin() {
             loginContainer.style.display = 'flex';
             appContainer.style.display = 'none';
-            loginCodeInput.value = ''; // 清空输入框
+            loginCodeInput.value = '';
             loginMessage.textContent = '';
         }
-        
+
         // 显示应用界面
         function showApp() {
             loginContainer.style.display = 'none';
             appContainer.style.display = 'grid';
-            
             loadConfig();
             updateStatsDisplay();
             loadSuccessRecords();
@@ -1088,63 +1084,66 @@
             
             // 实时更新时间显示
             setInterval(() => {
-                const now = new Date();
-                lastUpdateEl.textContent = `最后更新: ${now.toLocaleTimeString()}`;
+                lastUpdateEl.textContent = `最后更新: ${new Date().toLocaleTimeString()}`;
             }, 1000);
         }
-        
-        // 验证卡密
+
+        // 验证卡密（完全修复版）
         async function validateCode(inputCode) {
             try {
-                // 从指定URL获取有效的卡密列表
-                const response = await fetch(AUTH_URL, { 
+                // 强制不缓存请求
+                const response = await fetch(AUTH_URL, {
                     cache: 'no-store',
                     headers: {
                         'Cache-Control': 'no-cache, no-store, must-revalidate',
-                        'Pragma': 'no-cache',
-                        'Expires': '0'
+                        'Pragma': 'no-cache'
                     }
                 });
                 
                 if (!response.ok) {
-                    throw new Error('无法获取验证信息');
+                    throw new Error(`验证失败: ${response.status}`);
                 }
                 
                 const text = await response.text();
                 const validCodes = text.split('\n')
                     .map(line => line.trim())
-                    .filter(line => line.length > 0);
+                    .filter(line => line.length > 0 && !line.startsWith('#'));
                 
-                // 检查输入的卡密是否匹配
+                console.log('有效卡密列表:', validCodes); // 调试信息
+                
+                // 验证卡密
                 return validCodes.includes(inputCode);
             } catch (error) {
                 console.error('验证出错:', error);
+                loginMessage.textContent = '验证服务暂时不可用';
                 return false;
             }
         }
-        
-        // 设置事件监听器
+
+        // 设置事件监听器（修复版）
         function setupEventListeners() {
-            // 登录表单提交
+            // 登录表单提交（修复版）
             loginForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
                 const inputCode = loginCodeInput.value.trim();
-                
-                if (!inputCode) {
-                    loginMessage.textContent = '请输入卡密';
-                    return;
-                }
-                
                 loginMessage.textContent = '验证中...';
+                loginMessage.style.color = 'var(--dark)';
                 
-                const isValid = await validateCode(inputCode);
-                
-                if (isValid) {
-                    sessionStorage.setItem('isLoggedIn', 'true');
-                    showApp();
-                } else {
-                    loginMessage.textContent = '卡密无效或验证失败';
+                try {
+                    const isValid = await validateCode(inputCode);
+                    
+                    if (isValid) {
+                        sessionStorage.setItem('isLoggedIn', 'true');
+                        showApp(); // 确保跳转
+                    } else {
+                        loginMessage.textContent = '卡密无效，请检查后重试';
+                        loginMessage.style.color = 'var(--danger)';
+                    }
+                } catch (error) {
+                    console.error('登录错误:', error);
+                    loginMessage.textContent = '登录过程中出错，请重试';
+                    loginMessage.style.color = 'var(--danger)';
                 }
             });
             
@@ -1153,7 +1152,7 @@
                 sessionStorage.removeItem('isLoggedIn');
                 showLogin();
             });
-            
+
             // 导航菜单切换
             navItems.forEach(item => {
                 if (item.id !== 'logoutBtn') {
