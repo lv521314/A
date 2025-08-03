@@ -25,14 +25,130 @@
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            --radius-sm: 8px;
-            --radius: 12px;
-            --radius-lg: 16px;
+            --radius-sm: 0.25rem;
+            --radius: 0.5rem;
+            --radius-lg: 0.75rem;
             --gradient-primary: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
             --gradient-accent: linear-gradient(135deg, #FF9F43 0%, #FECA57 100%);
             --gradient-success: linear-gradient(135deg, #1DD1A1 0%, #10EAC8 100%);
         }
-
+        
+        
+        
+        
+        
+        
+   /* 登录遮罩层 */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(13, 27, 42, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+        
+        
+ .login-title {
+            font-size: 2rem;
+            margin-bottom: 30px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+        
+  .login-box {
+            background: var(--panel-bg);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            width: 100%;
+            max-width: 500px;
+            box-shadow: var(--box-shadow);
+            border: 1px solid var(--primary);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient);
+        }
+        
+   .login-title {
+            font-size: 2rem;
+            margin-bottom: 30px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+             .login-input {
+            width: 100%;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            background: rgba(19, 33, 51, 0.8);
+            color: var(--text-primary);
+            border: 1px solid rgba(30, 136, 229, 0.3);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .login-input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(30, 136, 229, 0.2);
+        }
+                
+             .login-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 15px 30px;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .login-btn:hover {
+            background: linear-gradient(135deg, #1565c0, #e65100);
+            transform: translateY(-2px);
+        }
+                
+     .login-error {
+            color: var(--danger);
+            margin-top: 15px;
+            font-size: 0.9rem;
+            min-height: 20px;
+        }
+                
+                
+                
+                
+                
+        
         * {
             box-sizing: border-box;
             margin: 0;
@@ -48,116 +164,8 @@
             background-image: radial-gradient(circle at 10% 20%, rgba(255, 200, 124, 0.1) 0%, rgba(255, 107, 107, 0.1) 90%);
         }
 
-        /* 登录界面样式 */
-        .login-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: linear-gradient(135deg, rgba(255,107,107,0.1) 0%, rgba(255,159,67,0.1) 100%);
-        }
-
-        .login-card {
-            background-color: white;
-            border-radius: var(--radius-lg);
-            padding: 2.5rem;
-            width: 100%;
-            max-width: 350px;
-            box-shadow: var(--shadow-lg);
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.3);
-            backdrop-filter: blur(10px);
-        }
-
-        .login-logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-            margin-bottom: 2rem;
-            font-weight: 700;
-            font-size: 1.5rem;
-            background: var(--gradient-primary);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .login-icon {
-            width: 2.5rem;
-            height: 2.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--gradient-primary);
-            color: white;
-            border-radius: var(--radius);
-            box-shadow: 0 4px 6px rgba(255, 107, 107, 0.3);
-        }
-
-        .login-form {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.25rem;
-            text-align: left;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: var(--dark);
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 0.875rem 1rem;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            font-size: 0.875rem;
-            transition: all 0.2s;
-            background-color: rgba(255, 255, 255, 0.8);
-            text-align: center;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
-        }
-
-        .login-btn {
-            width: 100%;
-            padding: 0.875rem;
-            border-radius: var(--radius);
-            font-weight: 600;
-            background: var(--gradient-primary);
-            color: white;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: var(--shadow-sm);
-            margin-top: 1rem;
-        }
-
-        .login-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow);
-        }
-
-        .login-message {
-            margin-top: 1rem;
-            color: var(--danger);
-            font-size: 0.875rem;
-            min-height: 20px;
-        }
-
-        /* 主应用容器 - 初始隐藏 */
         .app-container {
-            display: none;
+            display: grid;
             grid-template-columns: 240px 1fr;
             min-height: 100vh;
         }
@@ -284,7 +292,7 @@
         /* 卡片样式 */
         .card {
             background-color: var(--card-bg);
-            border-radius: var(--radius-lg);
+            border-radius: var(--radius);
             box-shadow: var(--shadow);
             padding: 1.5rem;
             margin-bottom: 1.5rem;
@@ -358,31 +366,44 @@
             color: var(--dark);
         }
 
-        /* 关键词管理 - 改为3列网格布局 */
+        /* 关键词管理 */
         .keyword-manager {
             margin-bottom: 1.5rem;
         }
 
+        .keyword-search {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .keyword-search:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
+        }
+
         .keyword-tags {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            display: flex;
+            flex-wrap: wrap;
             gap: 0.5rem;
             margin-bottom: 1rem;
         }
 
         .keyword-tag {
-            padding: 0.5rem;
+            padding: 0.5rem 1rem;
             background-color: #EDF2F7;
-            border-radius: var(--radius);
+            border-radius: 2rem;
             font-size: 0.875rem;
             cursor: pointer;
             transition: all 0.2s;
             border: none;
             box-shadow: var(--shadow-sm);
-            text-align: center;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         .keyword-tag:hover {
@@ -415,7 +436,7 @@
         .area-option {
             padding: 0.75rem 1.5rem;
             background-color: #EDF2F7;
-            border-radius: var(--radius);
+            border-radius: 2rem;
             font-size: 0.875rem;
             cursor: pointer;
             transition: all 0.2s;
@@ -597,6 +618,34 @@
             font-weight: 600;
         }
 
+        /* 表单元素 */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
+        }
+
         /* 记录表格 */
         .record-table-container {
             overflow-x: auto;
@@ -610,8 +659,6 @@
             border-spacing: 0;
             font-size: 0.875rem;
             background-color: var(--card-bg);
-            border-radius: var(--radius);
-            overflow: hidden;
         }
 
         .record-table th {
@@ -662,10 +709,6 @@
             .stats-grid {
                 grid-template-columns: 1fr 1fr;
             }
-            
-            .keyword-tags {
-                grid-template-columns: 1fr 1fr;
-            }
         }
 
         @media (max-width: 640px) {
@@ -679,10 +722,6 @@
             
             .area-selector {
                 flex-direction: column;
-            }
-            
-            .keyword-tags {
-                grid-template-columns: 1fr;
             }
         }
 
@@ -714,28 +753,25 @@
     </style>
 </head>
 <body>
-    <!-- 登录界面 -->
-    <div class="login-container" id="loginContainer">
-        <div class="login-card">
-            <div class="login-logo">
-                <div class="login-icon">🔑</div>
-                <span>卡密登录</span>
+
+   <!-- 登录界面 -->
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-box">
+            <h1 class="login-title"><i class="fas fa-key"></i> 系统登录</h1>
+            <p style="color: var(--gray); margin-bottom: 20px;">请输入卡密访问抢单系统</p>
+            <input type="password" id="loginKey" class="login-input" placeholder="请输入您的卡密">
+            <button class="login-btn" id="loginBtn">
+                <i class="fas fa-sign-in-alt"></i> 登录系统
+            </button>
+            <div class="login-error" id="loginError"></div>
+            <div style="margin-top: 20px; color: var(--gray); font-size: 0.9rem;">
+                <i class="fas fa-info-circle"></i> 卡密验证通过后即可使用系统功能
             </div>
-            
-            <form class="login-form" id="loginForm">
-                <div class="form-group">
-                    <label for="loginCode">请输入卡密</label>
-                    <input type="password" id="loginCode" placeholder="输入您的卡密" required>
-                </div>
-                
-                <button type="submit" class="login-btn">登录</button>
-                <div class="login-message" id="loginMessage"></div>
-            </form>
         </div>
     </div>
 
-    <!-- 主应用容器 -->
-    <div class="app-container" id="appContainer">
+
+    <div class="app-container">
         <!-- 侧边栏 -->
         <div class="sidebar">
             <div class="logo">
@@ -774,14 +810,6 @@
                         <polyline points="10 9 9 9 8 9"></polyline>
                     </svg>
                     成功记录
-                </a>
-                <a href="#" class="nav-item" id="logoutBtn">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                        <polyline points="16 17 21 12 16 7"></polyline>
-                        <line x1="21" y1="12" x2="9" y2="12"></line>
-                    </svg>
-                    退出登录
                 </a>
             </nav>
         </div>
@@ -845,6 +873,14 @@
                         <button class="keyword-tag">给打手加鸡腿</button>
                         <button class="keyword-tag">给打手加汉堡</button>                   
                         <button class="keyword-tag">给打手喝奶茶</button>
+ 
+                        
+                        
+                        
+                        
+                        
+                        
+                        
                     </div>
                     
                     <input type="text" class="custom-keywords" placeholder="自定义关键词，用逗号分隔" id="customKeywords">
@@ -997,6 +1033,102 @@
     </div>
 
     <script>
+    
+    
+   // 登录系统
+        const loginOverlay = document.getElementById('loginOverlay');
+        const mainContainer = document.getElementById('mainContainer');
+        const loginBtn = document.getElementById('loginBtn');
+        const loginKey = document.getElementById('loginKey');
+        const loginError = document.getElementById('loginError');
+        
+        // 从指定URL获取有效卡密
+        async function fetchValidKeys() {
+            try {
+                const response = await fetch('https://lv521314.github.io/A270000a/00.txt');
+                if (!response.ok) throw new Error('获取卡密失败');
+                const text = await response.text();
+                return text.split('\n').map(key => key.trim()).filter(key => key.length > 0);
+            } catch (error) {
+                console.error('获取卡密失败:', error);
+                return [];
+            }
+        }
+        
+        // 验证卡密
+        async function validateKey(key) {
+            const validKeys = await fetchValidKeys();
+            return validKeys.includes(key);
+        }
+        
+        // 登录事件
+        loginBtn.addEventListener('click', async function() {
+            const key = loginKey.value.trim();
+            if (!key) {
+                loginError.textContent = '请输入卡密';
+                return;
+            }
+            
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 验证中...';
+            
+            try {
+                const isValid = await validateKey(key);
+                
+                if (isValid) {
+                    // 登录成功 - 添加sessionStorage存储
+                    sessionStorage.setItem('xltAuthToken', key);
+                    
+                    loginOverlay.style.display = 'none';
+                    mainContainer.style.display = 'grid';
+                    
+                    // 使用sessionStorage存储登录状态（页面关闭后自动清除）
+                    addLog('✅ 登录成功！欢迎使用小辣条电竞抢单系统', 'success');
+                } else {
+                    // 登录失败
+                    loginError.textContent = '卡密无效，请检查后重试';
+                }
+            } catch (error) {
+                loginError.textContent = '验证过程中出错，请重试';
+                console.error('登录错误:', error);
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> 登录系统';
+            }
+        });
+        
+        // 检查是否已登录
+        window.addEventListener('DOMContentLoaded', async function() {
+            const savedKey = sessionStorage.getItem('xltAuthToken');
+            if (savedKey) {
+                loginBtn.disabled = true;
+                loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 验证中...';
+                
+                try {
+                    const isValid = await validateKey(savedKey);
+                    if (isValid) {
+                        loginOverlay.style.display = 'none';
+                        mainContainer.style.display = 'grid';
+                        addLog('✅ 自动登录成功！欢迎回来', 'success');
+                    } else {
+                        sessionStorage.removeItem('xltAuthToken');
+                        loginError.textContent = '会话已过期，请重新登录';
+                    }
+                } catch (error) {
+                    loginError.textContent = '自动登录失败，请重新登录';
+                    console.error('自动登录错误:', error);
+                } finally {
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> 登录系统';
+                }
+            }
+        });
+    
+    
+    
+    
+    
+    
         // 全局配置
         const config = {
             apiBaseUrl: "https://paidan.xlt666.club/yxdl/api",
@@ -1016,18 +1148,9 @@
         };
         
         // 独立存储成功记录
-        let successRecords = JSON.parse(localStorage.getItem('permanentRecords') || []);
-        
-        // 卡密验证URL（添加随机参数防止缓存）
-        const AUTH_URL = "https://lv521314.github.io/A270000a/00.txt?_=" + Date.now();
+        let successRecords = JSON.parse(localStorage.getItem('permanentRecords') || '[]');
         
         // DOM元素
-        const loginContainer = document.getElementById('loginContainer');
-        const appContainer = document.getElementById('appContainer');
-        const loginForm = document.getElementById('loginForm');
-        const loginMessage = document.getElementById('loginMessage');
-        const loginCodeInput = document.getElementById('loginCode');
-        const logoutBtn = document.getElementById('logoutBtn');
         const idsInput = document.getElementById('ids');
         const tokenInput = document.getElementById('token');
         const startBtn = document.getElementById('startBtn');
@@ -1055,129 +1178,44 @@
         
         // 初始化
         document.addEventListener('DOMContentLoaded', function() {
-            // 检查是否已登录
-            if (sessionStorage.getItem('isLoggedIn')) {
-                showApp();
-            } else {
-                showLogin();
-            }
-            
-            setupEventListeners();
-        });
-
-        // 显示登录界面
-        function showLogin() {
-            loginContainer.style.display = 'flex';
-            appContainer.style.display = 'none';
-            loginCodeInput.value = '';
-            loginMessage.textContent = '';
-        }
-
-        // 显示应用界面
-        function showApp() {
-            loginContainer.style.display = 'none';
-            appContainer.style.display = 'grid';
             loadConfig();
+            setupEventListeners();
             updateStatsDisplay();
             loadSuccessRecords();
             addLog('系统初始化完成', 'info');
             
             // 实时更新时间显示
             setInterval(() => {
-                lastUpdateEl.textContent = `最后更新: ${new Date().toLocaleTimeString()}`;
+                const now = new Date();
+                lastUpdateEl.textContent = `最后更新: ${now.toLocaleTimeString()}`;
             }, 1000);
-        }
-
-        // 验证卡密（完全修复版）
-        async function validateCode(inputCode) {
-            try {
-                // 强制不缓存请求
-                const response = await fetch(AUTH_URL, {
-                    cache: 'no-store',
-                    headers: {
-                        'Cache-Control': 'no-cache, no-store, must-revalidate',
-                        'Pragma': 'no-cache'
-                    }
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`验证失败: ${response.status}`);
-                }
-                
-                const text = await response.text();
-                const validCodes = text.split('\n')
-                    .map(line => line.trim())
-                    .filter(line => line.length > 0 && !line.startsWith('#'));
-                
-                console.log('有效卡密列表:', validCodes); // 调试信息
-                
-                // 验证卡密
-                return validCodes.includes(inputCode);
-            } catch (error) {
-                console.error('验证出错:', error);
-                loginMessage.textContent = '验证服务暂时不可用';
-                return false;
-            }
-        }
-
-        // 设置事件监听器（修复版）
+        });
+        
+        // 设置事件监听器
         function setupEventListeners() {
-            // 登录表单提交（修复版）
-            loginForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const inputCode = loginCodeInput.value.trim();
-                loginMessage.textContent = '验证中...';
-                loginMessage.style.color = 'var(--dark)';
-                
-                try {
-                    const isValid = await validateCode(inputCode);
-                    
-                    if (isValid) {
-                        sessionStorage.setItem('isLoggedIn', 'true');
-                        showApp(); // 确保跳转
-                    } else {
-                        loginMessage.textContent = '卡密无效，请检查后重试';
-                        loginMessage.style.color = 'var(--danger)';
-                    }
-                } catch (error) {
-                    console.error('登录错误:', error);
-                    loginMessage.textContent = '登录过程中出错，请重试';
-                    loginMessage.style.color = 'var(--danger)';
-                }
-            });
-            
-            // 退出登录
-            logoutBtn.addEventListener('click', function() {
-                sessionStorage.removeItem('isLoggedIn');
-                showLogin();
-            });
-
             // 导航菜单切换
             navItems.forEach(item => {
-                if (item.id !== 'logoutBtn') {
-                    item.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        const tabId = this.dataset.tab;
-                        
-                        // 更新导航状态
-                        navItems.forEach(nav => nav.classList.remove('active'));
-                        this.classList.add('active');
-                        
-                        // 更新内容显示
-                        tabContents.forEach(content => {
-                            content.classList.remove('active');
-                            if (content.id === `${tabId}-tab`) {
-                                content.classList.add('active');
-                            }
-                        });
-                        
-                        // 如果是记录页，刷新数据
-                        if (tabId === 'records') {
-                            loadSuccessRecords();
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const tabId = this.dataset.tab;
+                    
+                    // 更新导航状态
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // 更新内容显示
+                    tabContents.forEach(content => {
+                        content.classList.remove('active');
+                        if (content.id === `${tabId}-tab`) {
+                            content.classList.add('active');
                         }
                     });
-                }
+                    
+                    // 如果是记录页，刷新数据
+                    if (tabId === 'records') {
+                        loadSuccessRecords();
+                    }
+                });
             });
             
             // 开始抢单
@@ -1223,6 +1261,8 @@
                 config.keywords = getSelectedKeywords();
                 saveConfigToLocal();
             });
+            
+         
             
             // 区域选择
             areaOptions.forEach(option => {
