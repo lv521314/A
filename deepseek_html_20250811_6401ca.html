@@ -1,0 +1,2242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>极速版-小岛自动抢单工具</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6b7280;
+            --primary-light: #9ca3af;
+            --primary-dark: #4b5563;
+            --accent: #6b7280;
+            --success: #6b7280;
+            --warning: #6b7280;
+            --danger: #6b7280;
+            --dark: #374151;
+            --light: #f3f4f6;
+            --gray: #6b7280;
+            --border: #d1d5db;
+            --card-bg: #FFFFFF;
+            --sidebar-bg: #F8F9FA;
+            --highlight: #6b7280;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --radius-sm: 0.25rem;
+            --radius: 0.5rem;
+            --radius-lg: 0.75rem;
+            --gradient-primary: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+            --gradient-accent: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
+            --gradient-success: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: #f3f4f6;
+            color: #374151;
+            line-height: 1.5;
+            font-size: 0.875rem;
+            background-image: radial-gradient(circle at 10% 20%, rgba(107, 114, 128, 0.1) 0%, rgba(75, 85, 99, 0.1) 90%);
+        }
+
+        /* 登录遮罩层样式 */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .login-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            width: 90%;
+            max-width: 400px;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+        }
+        
+        .login-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+        
+        .login-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 1rem;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .login-btn:hover {
+            background: linear-gradient(135deg, #4b5563 0%, #6b7280 100%);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        .login-error {
+            color: var(--danger);
+            margin-top: 1rem;
+            font-size: 0.875rem;
+        }
+        
+        .login-loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            min-height: 100vh;
+        }
+
+        /* 侧边栏样式 */
+        .sidebar {
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border);
+            padding: 1.5rem;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            background-image: linear-gradient(to bottom, #FFFFFF 0%, #F8F9FA 100%);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--primary-dark);
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 4px rgba(107, 114, 128, 0.1);
+        }
+
+        .logo-icon {
+            width: 2rem;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient-primary);
+            color: white;
+            border-radius: var(--radius);
+            box-shadow: 0 4px 6px rgba(107, 114, 128, 0.3);
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius);
+            color: var(--dark);
+            text-decoration: none;
+            transition: all 0.2s;
+            background-color: rgba(255, 255, 255, 0.8);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-item:hover {
+            background-color: #EDF2F7;
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background: var(--gradient-primary);
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 4px 6px rgba(107, 114, 128, 0.3);
+        }
+
+        .nav-item.active svg {
+            stroke: white;
+        }
+
+        /* 主内容区样式 */
+        .main-content {
+            padding: 2rem;
+            background-color: var(--light);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark);
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background-color: #EDF2F7;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .indicator {
+            width: 0.75rem;
+            height: 0.75rem;
+            border-radius: 50%;
+            background-color: var(--gray);
+        }
+
+        .indicator.active {
+            background-color: var(--success);
+            box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.2);
+            animation: pulse 1.5s infinite;
+        }
+
+        /* 卡片样式 */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            background-image: linear-gradient(to bottom right, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+            backdrop-filter: blur(5px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--dark);
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background-color: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s;
+            background-image: linear-gradient(to bottom right, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-card:nth-child(1) {
+            background: linear-gradient(135deg, rgba(107, 114, 128, 0.1) 0%, rgba(75, 85, 99, 0.1) 100%);
+        }
+
+        .stat-card:nth-child(2) {
+            background: linear-gradient(135deg, rgba(107, 114, 128, 0.1) 0%, rgba(156, 163, 175, 0.1) 100%);
+        }
+
+        .stat-card:nth-child(3) {
+            background: linear-gradient(135deg, rgba(107, 114, 128, 0.1) 0%, rgba(75, 85, 99, 0.1) 100%);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        /* 关键词管理 */
+        .keyword-manager {
+            margin-bottom: 1.5rem;
+        }
+
+        .keyword-search {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .keyword-search:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.2);
+        }
+
+        .keyword-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .keyword-tag {
+            padding: 0.5rem 1rem;
+            background-color: #EDF2F7;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .keyword-tag:hover {
+            background-color: #E2E8F0;
+            transform: translateY(-2px);
+        }
+
+        .keyword-tag.active {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 6px rgba(107, 114, 128, 0.3);
+        }
+
+        .custom-keywords {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .blacklist-keywords {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            background-color: rgba(255, 255, 255, 0.8);
+            margin-top: 0.5rem;
+        }
+
+        .keyword-note {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-top: 0.5rem;
+        }
+
+        /* 区域选择器 */
+        .area-selector {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .area-option {
+            padding: 0.75rem 1.5rem;
+            background-color: #EDF2F7;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .area-option:hover {
+            background-color: #E2E8F0;
+            transform: translateY(-2px);
+        }
+
+        .area-option.active {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 6px rgba(107, 114, 128, 0.3);
+        }
+
+        /* 延迟控制 */
+        .delay-control {
+            margin-bottom: 1.5rem;
+        }
+
+        .delay-slider {
+            width: 100%;
+            margin: 1rem 0;
+            -webkit-appearance: none;
+            height: 0.5rem;
+            border-radius: 0.25rem;
+            background: #E2E8F0;
+            outline: none;
+        }
+
+        .delay-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 1.25rem;
+            height: 1.25rem;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .delay-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            background: var(--primary-dark);
+        }
+
+        .delay-value {
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        /* 刷新时间控制 */
+        .refresh-control {
+            margin-bottom: 1.5rem;
+        }
+
+        .refresh-slider {
+            width: 100%;
+            margin: 1rem 0;
+            -webkit-appearance: none;
+            height: 0.5rem;
+            border-radius: 0.25rem;
+            background: #E2E8F0;
+            outline: none;
+        }
+
+        .refresh-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 1.25rem;
+            height: 1.25rem;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .refresh-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            background: #4b5563;
+        }
+
+        .refresh-value {
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        /* 复选框 */
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .checkbox-container input {
+            width: 1.25rem;
+            height: 1.25rem;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        /* 按钮 */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: none;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #4b5563 0%, #6b7280 100%);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border);
+            color: var(--dark);
+        }
+
+        .btn-outline:hover {
+            background-color: #F1F5F9;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #4b5563 0%, #6b7280 100%);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        /* 日志区域 */
+        .log-stream {
+            height: 300px;
+            overflow-y: auto;
+            background-color: rgba(0, 0, 0, 0.05);
+            border-radius: var(--radius);
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            border: 1px solid var(--border);
+            background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+        }
+
+        .log-entry {
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px dashed var(--border);
+        }
+
+        .log-time {
+            color: var(--gray);
+            margin-right: 0.5rem;
+        }
+
+        .log-message.success {
+            color: var(--success);
+            font-weight: 500;
+        }
+
+        .log-message.warning {
+            color: var(--warning);
+            font-weight: 500;
+        }
+
+        .log-message.error {
+            color: var(--danger);
+            font-weight: 500;
+        }
+
+        .log-message.highlight {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .log-message.info {
+            color: var(--dark);
+        }
+
+        .log-message.refresh {
+            color: var(--accent);
+        }
+
+        .log-message.order {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        /* 表单元素 */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.2);
+        }
+
+        /* 记录表格 */
+        .record-table-container {
+            overflow-x: auto;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .record-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.875rem;
+            background-color: var(--card-bg);
+        }
+
+        .record-table th {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 0.75rem 1rem;
+            text-align: left;
+            position: sticky;
+            top: 0;
+        }
+
+        .record-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .record-table tr:nth-child(even) {
+            background-color: #F8FAFC;
+        }
+
+        .record-table tr:hover {
+            background-color: #EDF2F7;
+        }
+
+        .records-summary {
+            padding: 1rem;
+            background-color: rgba(107, 114, 128, 0.1);
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            font-weight: 500;
+        }
+
+        .records-summary-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .records-summary-label {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+
+        .records-summary-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        /* 用户信息区域 */
+        .user-info-container {
+            margin-top: 2rem;
+        }
+
+        .user-info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .user-info-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .user-info-summary {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .user-info-item {
+            flex: 1;
+            padding: 1rem;
+            background-color: rgba(107, 114, 128, 0.1);
+            border-radius: var(--radius);
+            text-align: center;
+        }
+
+        .user-info-label {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-bottom: 0.5rem;
+        }
+
+        .user-info-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        /* 标签页样式 */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        /* 性能监控面板 */
+        .performance-panel {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(255,255,255,0.9);
+            border-radius: var(--radius);
+        }
+        .perf-metric {
+            text-align: center;
+        }
+        .perf-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        .perf-label {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+        .dynamic-speed {
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(to right, #6b7280, #9ca3af, #6b7280);
+            margin-top: 0.5rem;
+            border-radius: 3px;
+        }
+        .speed-indicator {
+            height: 100%;
+            background: var(--dark);
+            width: 50%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1024px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                height: auto;
+                position: static;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .performance-panel {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .area-selector {
+                flex-direction: column;
+            }
+            
+            .performance-panel {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 动画效果 */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 登录遮罩层 -->
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-container">
+            <h2 class="login-title">卡密登录</h2>
+            <input type="text" class="login-input" id="cardKeyInput" placeholder="请输入卡密">
+            <button class="login-btn" id="loginBtn">登录</button>
+            <div class="login-error" id="loginError"></div>
+        </div>
+    </div>
+
+    <div class="app-container" id="appContainer" style="display: none;">
+        <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                </div>
+                <span>小岛抢单</span>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active" data-tab="dashboard">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
+                    控制台
+                </a>
+                <a href="#" class="nav-item" data-tab="settings">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2h-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h-.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                    设置
+                </a>
+                <a href="#" class="nav-item" data-tab="records">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    成功记录
+                </a>
+            </nav>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <!-- 控制台标签页 -->
+            <div id="dashboard-tab" class="tab-content active fade-in">
+                <div class="header">
+                    <h1 class="page-title">抢单控制台</h1>
+                    <div class="status-indicator">
+                        <div class="indicator"></div>
+                        <span>未运行</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">实时监控</h2>
+                        <span id="lastUpdate">最后更新: -</span>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">今日抢单成功</div>
+                            <div class="stat-value" id="successCount">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">刷新次数</div>
+                            <div class="stat-value" id="refreshCount">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">平均响应</div>
+                            <div class="stat-value" id="avgResponse">0</div>
+                            <div class="stat-label">秒</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">性能监控</h2>
+                    </div>
+                    <div class="performance-panel">
+                        <div class="perf-metric">
+                            <div class="perf-value" id="perf-request">0ms</div>
+                            <div class="perf-label">API响应</div>
+                        </div>
+                        <div class="perf-metric">
+                            <div class="perf-value" id="perf-process">0ms</div>
+                            <div class="perf-label">处理耗时</div>
+                        </div>
+                        <div class="perf-metric">
+                            <div class="perf-value" id="perf-total">0ms</div>
+                            <div class="perf-label">总周期</div>
+                        </div>
+                        <div class="perf-metric">
+                            <div class="perf-value" id="perf-speed">中速</div>
+                            <div class="perf-label">当前速度</div>
+                            <div class="dynamic-speed">
+                                <div class="speed-indicator" id="speed-indicator"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card keyword-manager">
+                    <div class="card-header">
+                        <h2 class="card-title">过滤订单管理</h2>
+                    </div>
+
+                    <div class="keyword-tags">
+                        <button class="keyword-tag active">开荒单</button>
+                        <button class="keyword-tag">暑假快乐单</button>
+                        <button class="keyword-tag">护航加强单</button>
+                        <button class="keyword-tag">实验基地专属</button>
+                        <button class="keyword-tag">烽火荣都专属</button>
+                        <button class="keyword-tag">冰河禁区专属</button>   
+                        <button class="keyword-tag">苏尔南清图单</button>   
+                        <button class="keyword-tag">苏尔南钻石单</button>   
+                        <button class="keyword-tag">金色狗牌单</button>   
+                        <button class="keyword-tag">钻石加强单</button>   
+                        <button class="keyword-tag">至尊护航单</button>
+                        <button class="keyword-tag">狙击俱乐部单</button>
+                        <button class="keyword-tag">大神护航单</button>
+                        <button class="keyword-tag">赌超级无资箱</button>
+                        <button class="keyword-tag">保底BOSS金光单</button>
+                        <button class="keyword-tag">给打手加鸡腿</button>
+                        <button class="keyword-tag">给打手加汉堡</button>                   
+                        <button class="keyword-tag">给打手喝奶茶</button>
+                    </div>
+                    
+                    <input type="text" class="custom-keywords" placeholder="自定义关键词，用逗号分隔" id="customKeywords">
+                    <input type="text" class="blacklist-keywords" placeholder="黑名单用户关键词，用逗号分隔" id="blacklistKeywords">
+                    <div class="keyword-note">自定义关键词将和上方选中的关键词一起使用，黑名单用户关键词将过滤掉包含这些关键词的订单</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">区域选择</h2>
+                    </div>
+                    
+                    <div class="area-selector">
+                        <button class="area-option active" data-area="all">全部区域</button>
+                        <button class="area-option" data-area="Q">Q区</button>
+                        <button class="area-option" data-area="V">V区</button>
+                    </div>
+                </div>
+
+                <div class="card delay-control">
+                    <div class="card-header">
+                        <h2 class="card-title">抢单延迟设置</h2>
+                    </div>
+                    
+                    <input type="range" class="delay-slider" id="delaySlider" min="50" max="500" value="150">
+                    <div>当前延迟: <span class="delay-value" id="delayValue">150</span> 毫秒</div>
+                </div>
+
+                <div class="card refresh-control">
+                    <div class="card-header">
+                        <h2 class="card-title">订单刷新间隔</h2>
+                    </div>
+                    
+                    <input type="range" class="refresh-slider" id="refreshSlider" min="0.5" max="5" step="0.1" value="1.5">
+                    <div>刷新间隔: <span class="refresh-value" id="refreshValue">1.5</span> 秒</div>
+                </div>
+
+                <div class="card">
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="autoStopCheckbox" checked>
+                        <label for="autoStopCheckbox">抢到一单后自动停止</label>
+                    </div>
+                    
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="autoBlacklistCheckbox" checked>
+                        <label for="autoBlacklistCheckbox">抢单失败后加入黑名单</label>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" id="startBtn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            </svg>
+                            开始抢单
+                        </button>
+                        <button class="btn btn-outline" id="stopBtn" style="display: none;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="6" y="4" width="12" height="16" rx="1"></rect>
+                            </svg>
+                            停止抢单
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">实时日志</h2>
+                        <button class="btn btn-outline" id="clearLogs">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 6h18"></path>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                            清空
+                        </button>
+                    </div>
+                    
+                    <div class="log-stream" id="logStream">
+                        <div class="log-entry">
+                            <span class="log-time">[系统]</span>
+                            <span class="log-message info">等待开始抢单...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 设置标签页 -->
+            <div id="settings-tab" class="tab-content">
+                <div class="header">
+                    <h1 class="page-title">账号设置</h1>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">账号配置</h2>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="ids">ids (多个ID用逗号分隔)</label>
+                        <input type="text" id="ids" placeholder="例如: 123456,789012">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="token">Token</label>
+                        <input type="password" id="token" placeholder="请输入token">
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" id="saveConfig">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                                <polyline points="7 3 7 8 15 8"></polyline>
+                            </svg>
+                            保存配置
+                        </button>
+                        <button class="btn btn-outline" id="loadConfig">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                            </svg>
+                            加载配置
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 成功记录标签页 -->
+            <div id="records-tab" class="tab-content">
+                <div class="header">
+                    <h1 class="page-title">成功记录</h1>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">抢单成功记录</h2>
+                        <button class="btn btn-danger" id="clearRecords">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 6h18"></path>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                            清空记录
+                        </button>
+                    </div>
+                    
+                    <div class="records-summary">
+                        <div class="records-summary-item">
+                            <div class="records-summary-label">累计抢单</div>
+                            <div class="records-summary-value" id="totalOrders">0</div>
+                        </div>
+                        <div class="records-summary-item">
+                            <div class="records-summary-label">累计金额</div>
+                            <div class="records-summary-value" id="totalAmount">0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="record-table-container">
+                        <table class="record-table">
+                            <thead>
+                                <tr>
+                                    <th>时间</th>
+                                    <th>订单ID</th>
+                                    <th>区域</th>
+                                    <th>类型</th>
+                                    <th>金额</th>
+                                    <th>延迟</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recordsTable">
+                                <tr>
+                                    <td colspan="6">暂无记录</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 新增用户信息区域 -->
+                <div class="user-info-container">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">未结算订单信息</h2>
+                        </div>
+                        
+                        <div class="user-info-summary">
+                            <div class="user-info-item">
+                                <div class="user-info-label">未结算订单数</div>
+                                <div class="user-info-value" id="unsettledCount">0</div>
+                            </div>
+                            <div class="user-info-item">
+                                <div class="user-info-label">累计金额</div>
+                                <div class="user-info-value" id="unsettledAmount">0</div>
+                            </div>
+                        </div>
+                        
+                        <div class="record-table-container">
+                            <table class="record-table">
+                                <thead>
+                                    <tr>
+                                        <th>时间</th>
+                                        <th>订单ID</th>
+                                        <th>区域</th>
+                                        <th>类型</th>
+                                        <th>金额</th>
+                                        <th>状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="unsettledTable">
+                                    <tr>
+                                        <td colspan="6">加载中...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 新增卡密验证功能
+        async function fetchValidCardKeys() {
+            try {
+                const response = await fetch('https://lv521314.github.io/A/00.txt');
+                if (!response.ok) {
+                    throw new Error('获取卡密列表失败');
+                }
+                const text = await response.text();
+                return text.split('\n').map(key => key.trim()).filter(key => key);
+            } catch (error) {
+                console.error('获取卡密列表出错:', error);
+                return [];
+            }
+        }
+
+        // 验证卡密
+        async function validateCardKey(key) {
+            const validKeys = await fetchValidCardKeys();
+            return validKeys.includes(key);
+        }
+
+        // 登录功能
+        document.addEventListener('DOMContentLoaded', async function() {
+            const loginOverlay = document.getElementById('loginOverlay');
+            const appContainer = document.getElementById('appContainer');
+            const cardKeyInput = document.getElementById('cardKeyInput');
+            const loginBtn = document.getElementById('loginBtn');
+            const loginError = document.getElementById('loginError');
+            
+            // 每次刷新页面都显示登录界面
+            loginOverlay.style.display = 'flex';
+            appContainer.style.display = 'none';
+            
+            loginBtn.addEventListener('click', async function() {
+                const key = cardKeyInput.value.trim();
+                if (!key) {
+                    loginError.textContent = '请输入卡密';
+                    return;
+                }
+                
+                loginBtn.disabled = true;
+                loginBtn.innerHTML = '<span class="login-loading"></span>验证中...';
+                loginError.textContent = '';
+                
+                try {
+                    const isValid = await validateCardKey(key);
+                    if (isValid) {
+                        loginOverlay.style.display = 'none';
+                        appContainer.style.display = 'grid';
+                        initApp();
+                    } else {
+                        loginError.textContent = '卡密无效，请重新输入';
+                    }
+                } catch (error) {
+                    loginError.textContent = '验证失败: ' + error.message;
+                } finally {
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = '登录';
+                }
+            });
+            
+            // 回车键登录
+            cardKeyInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    loginBtn.click();
+                }
+            });
+        });
+
+        // 初始化应用
+        function initApp() {
+            // 极速版配置
+            const config = {
+                apiBaseUrl: "https://paidan.xlt666.club/yxdl/api",
+                ids: [],
+                token: '',
+                baseDelay: 150,      // 基础延迟150ms
+                minDelay: 100,       // 最小延迟100ms
+                maxDelay: 300,       // 最大延迟300ms
+                baseInterval: 1500,  // 基础间隔1.5秒
+                minInterval: 1000,   // 最小间隔1秒
+                areaFilter: 'all',
+                keywords: ['开荒单'],
+                customKeywords: '',
+                blacklistKeywords: '',
+                blacklistOrderIds: [],
+                stopAfterSuccess: true,
+                autoBlacklist: true, // 新增自动黑名单功能
+                isRunning: false,
+                stats: {
+                    successCount: 0,
+                    refreshCount: 0,
+                    avgResponse: 0,
+                    lastRequestTime: 0,
+                    lastProcessTime: 0
+                },
+                // 智能调整参数
+                speedFactor: 1.0,
+                // 缓存系统
+                cache: {
+                    orders: null,
+                    expiry: 0,
+                    duration: 2000    // 2秒缓存
+                },
+                // 性能追踪
+                performance: {
+                    requestTimes: [],
+                    processTimes: []
+                }
+            };
+            
+            // 独立存储成功记录
+            let successRecords = JSON.parse(localStorage.getItem('permanentRecords') || '[]');
+            
+            // DOM元素
+            const idsInput = document.getElementById('ids');
+            const tokenInput = document.getElementById('token');
+            const startBtn = document.getElementById('startBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            const saveConfigBtn = document.getElementById('saveConfig');
+            const loadConfigBtn = document.getElementById('loadConfig');
+            const clearRecordsBtn = document.getElementById('clearRecords');
+            const clearLogsBtn = document.getElementById('clearLogs');
+            const autoStopCheckbox = document.getElementById('autoStopCheckbox');
+            const autoBlacklistCheckbox = document.getElementById('autoBlacklistCheckbox');
+            const indicator = document.querySelector('.indicator');
+            const successCountEl = document.getElementById('successCount');
+            const refreshCountEl = document.getElementById('refreshCount');
+            const avgResponseEl = document.getElementById('avgResponse');
+            const lastUpdateEl = document.getElementById('lastUpdate');
+            const logStream = document.getElementById('logStream');
+            const recordsTable = document.getElementById('recordsTable');
+            const keywordTags = document.querySelectorAll('.keyword-tag');
+            const customKeywordsInput = document.getElementById('customKeywords');
+            const blacklistKeywordsInput = document.getElementById('blacklistKeywords');
+            const keywordSearchInput = document.getElementById('keywordSearch');
+            const areaOptions = document.querySelectorAll('.area-option');
+            const delaySlider = document.getElementById('delaySlider');
+            const delayValue = document.getElementById('delayValue');
+            const refreshSlider = document.getElementById('refreshSlider');
+            const refreshValue = document.getElementById('refreshValue');
+            const navItems = document.querySelectorAll('.nav-item');
+            const tabContents = document.querySelectorAll('.tab-content');
+            const totalOrdersEl = document.getElementById('totalOrders');
+            const totalAmountEl = document.getElementById('totalAmount');
+            const perfRequestEl = document.getElementById('perf-request');
+            const perfProcessEl = document.getElementById('perf-process');
+            const perfTotalEl = document.getElementById('perf-total');
+            const perfSpeedEl = document.getElementById('perf-speed');
+            const speedIndicatorEl = document.getElementById('speed-indicator');
+            
+            // 新增用户信息相关DOM元素
+            const unsettledCountEl = document.getElementById('unsettledCount');
+            const unsettledAmountEl = document.getElementById('unsettledAmount');
+            const unsettledTable = document.getElementById('unsettledTable');
+            
+            // 初始化
+            loadConfig();
+            setupEventListeners();
+            updateStatsDisplay();
+            loadSuccessRecords();
+            loadUnsettledOrders(); // 初始化时加载未结算订单
+            addLog('系统初始化完成', 'info');
+            
+            // 设置未结算订单自动刷新
+            setInterval(loadUnsettledOrders, 10000); // 10秒刷新一次
+            
+            // 实时更新时间显示
+            setInterval(() => {
+                const now = new Date();
+                lastUpdateEl.textContent = `最后更新: ${now.toLocaleTimeString()}`;
+            }, 1000);
+            
+            // 设置事件监听器
+            function setupEventListeners() {
+                // 导航菜单切换
+                navItems.forEach(item => {
+                    item.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const tabId = this.dataset.tab;
+                        
+                        // 更新导航状态
+                        navItems.forEach(nav => nav.classList.remove('active'));
+                        this.classList.add('active');
+                        
+                        // 更新内容显示
+                        tabContents.forEach(content => {
+                            content.classList.remove('active');
+                            if (content.id === `${tabId}-tab`) {
+                                content.classList.add('active');
+                            }
+                        });
+                        
+                        // 如果是记录页，刷新数据
+                        if (tabId === 'records') {
+                            loadSuccessRecords();
+                            loadUnsettledOrders();
+                        }
+                    });
+                });
+                
+                // 开始抢单
+                startBtn.addEventListener('click', startOrderGrabber);
+                
+                // 停止抢单
+                stopBtn.addEventListener('click', stopOrderGrabber);
+                
+                // 保存配置
+                saveConfigBtn.addEventListener('click', saveConfig);
+                
+                // 加载配置
+                loadConfigBtn.addEventListener('click', loadConfig);
+                
+                // 清空日志
+                clearLogsBtn.addEventListener('click', function() {
+                    logStream.innerHTML = '';
+                    addLog('日志已清空', 'info');
+                });
+                
+                // 清空记录
+                clearRecordsBtn.addEventListener('click', function() {
+                    if (confirm('确定要清空所有成功记录吗？此操作不可恢复！')) {
+                        successRecords = [];
+                        localStorage.setItem('permanentRecords', JSON.stringify(successRecords));
+                        loadSuccessRecords();
+                        addLog('已清空所有成功记录', 'warning');
+                    }
+                });
+                
+                // 关键词选择
+                keywordTags.forEach(tag => {
+                    tag.addEventListener('click', function() {
+                        this.classList.toggle('active');
+                        config.keywords = getSelectedKeywords();
+                        saveConfigToLocal();
+                    });
+                });
+                
+                // 自定义关键词
+                customKeywordsInput.addEventListener('change', function() {
+                    config.customKeywords = this.value;
+                    config.keywords = getSelectedKeywords();
+                    saveConfigToLocal();
+                });
+                
+                // 黑名单关键词
+                blacklistKeywordsInput.addEventListener('change', function() {
+                    config.blacklistKeywords = this.value;
+                    saveConfigToLocal();
+                });
+                
+                // 区域选择
+                areaOptions.forEach(option => {
+                    option.addEventListener('click', function() {
+                        areaOptions.forEach(opt => opt.classList.remove('active'));
+                        this.classList.add('active');
+                        config.areaFilter = this.dataset.area;
+                        saveConfigToLocal();
+                    });
+                });
+                
+                // 延迟滑块
+                delaySlider.addEventListener('input', function() {
+                    config.baseDelay = parseInt(this.value);
+                    delayValue.textContent = this.value;
+                    saveConfigToLocal();
+                });
+                
+                // 刷新间隔滑块
+                refreshSlider.addEventListener('input', function() {
+                    config.baseInterval = parseFloat(this.value) * 1000; // 转换为毫秒
+                    refreshValue.textContent = this.value;
+                    saveConfigToLocal();
+                });
+                
+                // 自动黑名单选项
+                autoBlacklistCheckbox.addEventListener('change', function() {
+                    config.autoBlacklist = this.checked;
+                    saveConfigToLocal();
+                });
+            }
+            
+            // 加载未结算订单
+            async function loadUnsettledOrders() {
+                if (!config.token) {
+                    return;
+                }
+                
+                try {
+                    const headers = {
+                        "token": config.token
+                    };
+                    
+                    const response = await fetch(`${config.apiBaseUrl}/order/myList?pageSize=10&pageNum=1&status=3`, {
+                        headers: headers
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP错误! 状态: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (data.code !== 200) {
+                        throw new Error(data.msg || '获取未结算订单失败');
+                    }
+                    
+                    const orders = data.rows || [];
+                    let totalAmount = 0;
+                    
+                    // 计算总金额
+                    orders.forEach(order => {
+                        if (order.outPrice && !isNaN(parseFloat(order.outPrice))) {
+                            totalAmount += parseFloat(order.outPrice);
+                        }
+                    });
+                    
+                    // 更新UI
+                    unsettledCountEl.textContent = orders.length;
+                    unsettledAmountEl.textContent = totalAmount.toFixed(2);
+                    
+                    // 更新表格
+                    if (orders.length === 0) {
+                        unsettledTable.innerHTML = '<tr><td colspan="6">暂无未结算订单</td></tr>';
+                        return;
+                    }
+                    
+                    let html = '';
+                    orders.forEach(order => {
+                        html += `
+                            <tr>
+                                <td>${new Date(order.createTime).toLocaleString()}</td>
+                                <td>${order.taskId || '未知'}</td>
+                                <td>${order.categoryName || '未知区域'}</td>
+                                <td>${order.taskName || '未知类型'}</td>
+                                <td>${order.outPrice || '未知'}</td>
+                                <td>未结算</td>
+                            </tr>
+                        `;
+                    });
+                    
+                    unsettledTable.innerHTML = html;
+                    
+                } catch (error) {
+                    console.error('获取未结算订单出错:', error);
+                    unsettledTable.innerHTML = `<tr><td colspan="6">加载失败: ${error.message}</td></tr>`;
+                }
+            }
+            
+            // 保存配置到本地存储
+            function saveConfigToLocal() {
+                const configToSave = {
+                    ids: config.ids,
+                    token: config.token,
+                    baseDelay: config.baseDelay,
+                    baseInterval: config.baseInterval,
+                    areaFilter: config.areaFilter,
+                    keywords: config.keywords,
+                    customKeywords: config.customKeywords,
+                    blacklistKeywords: config.blacklistKeywords,
+                    blacklistOrderIds: config.blacklistOrderIds,
+                    stopAfterSuccess: config.stopAfterSuccess,
+                    autoBlacklist: config.autoBlacklist
+                };
+                localStorage.setItem('orderGrabberConfig', JSON.stringify(configToSave));
+            }
+            
+            // 加载配置
+            function loadConfig() {
+                const savedConfig = localStorage.getItem('orderGrabberConfig');
+                if (savedConfig) {
+                    try {
+                        const parsedConfig = JSON.parse(savedConfig);
+                        
+                        // 更新配置对象
+                        config.ids = Array.isArray(parsedConfig.ids) 
+                            ? parsedConfig.ids 
+                            : (parsedConfig.ids || '').split(',').filter(id => id.trim()).map(id => parseInt(id.trim()));
+                        config.token = parsedConfig.token || '';
+                        config.baseDelay = parsedConfig.baseDelay || 150;
+                        config.baseInterval = parsedConfig.baseInterval || 1500;
+                        config.areaFilter = parsedConfig.areaFilter || 'all';
+                        config.keywords = parsedConfig.keywords || ['开荒单'];
+                        config.customKeywords = parsedConfig.customKeywords || '';
+                        config.blacklistKeywords = parsedConfig.blacklistKeywords || '';
+                        config.blacklistOrderIds = parsedConfig.blacklistOrderIds || [];
+                        config.stopAfterSuccess = parsedConfig.stopAfterSuccess !== false;
+                        config.autoBlacklist = parsedConfig.autoBlacklist !== false;
+                        
+                        // 更新UI
+                        idsInput.value = Array.isArray(parsedConfig.ids) 
+                            ? parsedConfig.ids.join(',') 
+                            : (parsedConfig.ids || '');
+                        tokenInput.value = config.token;
+                        autoStopCheckbox.checked = config.stopAfterSuccess;
+                        autoBlacklistCheckbox.checked = config.autoBlacklist;
+                        delaySlider.value = config.baseDelay;
+                        delayValue.textContent = config.baseDelay;
+                        refreshSlider.value = config.baseInterval / 1000;
+                        refreshValue.textContent = config.baseInterval / 1000;
+                        customKeywordsInput.value = config.customKeywords;
+                        blacklistKeywordsInput.value = config.blacklistKeywords;
+                        
+                        // 恢复关键词按钮状态
+                        keywordTags.forEach(tag => {
+                            if (config.keywords.includes(tag.textContent)) {
+                                tag.classList.add('active');
+                            } else {
+                                tag.classList.remove('active');
+                            }
+                        });
+                        
+                        // 恢复区域选择
+                        areaOptions.forEach(option => {
+                            if (option.dataset.area === config.areaFilter) {
+                                option.classList.add('active');
+                            } else {
+                                option.classList.remove('active');
+                            }
+                        });
+                        
+                        addLog('配置加载成功', 'success');
+                    } catch (e) {
+                        addLog('配置加载失败: ' + e.message, 'error');
+                    }
+                } else {
+                    addLog('没有找到保存的配置', 'warning');
+                }
+            }
+            
+            // 保存配置
+            function saveConfig() {
+                config.ids = idsInput.value.trim().split(',').filter(id => id.trim()).map(id => parseInt(id.trim()));
+                config.token = tokenInput.value.trim();
+                config.stopAfterSuccess = autoStopCheckbox.checked;
+                config.autoBlacklist = autoBlacklistCheckbox.checked;
+                config.keywords = getSelectedKeywords();
+                config.blacklistKeywords = blacklistKeywordsInput.value.trim();
+                
+                saveConfigToLocal();
+                addLog('配置已保存', 'success');
+            }
+            
+            // 获取选中的关键词
+            function getSelectedKeywords() {
+                const keywords = [];
+                
+                // 从快捷按钮获取
+                document.querySelectorAll('.keyword-tag.active').forEach(tag => {
+                    keywords.push(tag.textContent);
+                });
+                
+                // 从自定义输入获取
+                if (customKeywordsInput.value.trim()) {
+                    customKeywordsInput.value.trim().split(',').forEach(kw => {
+                        if (kw.trim()) keywords.push(kw.trim());
+                    });
+                }
+                
+                return keywords;
+            }
+            
+            // 获取黑名单关键词
+            function getBlacklistKeywords() {
+                if (!config.blacklistKeywords) return [];
+                return config.blacklistKeywords.split(',').map(kw => kw.trim()).filter(kw => kw);
+            }
+            
+            // 智能动态延迟计算
+            function getDynamicDelay() {
+                // 根据最近5次的平均响应时间动态调整
+                const lastRequests = config.performance.requestTimes.slice(-5);
+                const avgRequest = lastRequests.reduce((a, b) => a + b, 0) / (lastRequests.length || 1);
+                
+                // 根据API响应时间调整延迟
+                let dynamicDelay = config.baseDelay;
+                if (avgRequest > 500) {
+                    // 如果API响应慢，适当增加延迟避免频繁请求
+                    dynamicDelay = Math.min(config.baseDelay * 1.5, config.maxDelay);
+                } else if (avgRequest < 200) {
+                    // 如果API响应快，可以适当减少延迟
+                    dynamicDelay = Math.max(config.baseDelay * 0.8, config.minDelay);
+                }
+                
+                // 根据当前速度因子调整
+                dynamicDelay = Math.max(config.minDelay, Math.min(config.maxDelay, dynamicDelay * config.speedFactor));
+                
+                return Math.round(dynamicDelay);
+            }
+            
+            // 智能动态间隔计算
+            function getDynamicInterval() {
+                // 根据系统负载动态调整
+                const lastProcessTimes = config.performance.processTimes.slice(-5);
+                const avgProcess = lastProcessTimes.reduce((a, b) => a + b, 0) / (lastProcessTimes.length || 1);
+                
+                let dynamicInterval = config.baseInterval;
+                if (avgProcess > 1000) {
+                    // 如果处理时间长，适当增加间隔
+                    dynamicInterval = Math.min(config.baseInterval * 1.3, 5000);
+                } else if (avgProcess < 500) {
+                    // 如果处理时间短，可以适当减少间隔
+                    dynamicInterval = Math.max(config.baseInterval * 0.7, config.minInterval);
+                }
+                
+                return Math.round(dynamicInterval);
+            }
+            
+            // 更新性能显示
+            function updatePerformanceDisplay(requestTime, processTime) {
+                const totalTime = requestTime + processTime;
+                
+                perfRequestEl.textContent = `${requestTime}ms`;
+                perfProcessEl.textContent = `${processTime}ms`;
+                perfTotalEl.textContent = `${totalTime}ms`;
+                
+                // 更新速度指示器
+                let speedText = '中速';
+                let speedPercent = 50;
+                
+                if (totalTime < 800) {
+                    speedText = '极速';
+                    speedPercent = 20;
+                } else if (totalTime < 1500) {
+                    speedText = '快速';
+                    speedPercent = 35;
+                } else if (totalTime > 3000) {
+                    speedText = '慢速';
+                    speedPercent = 80;
+                }
+                
+                perfSpeedEl.textContent = speedText;
+                speedIndicatorEl.style.width = `${speedPercent}%`;
+                
+                // 根据性能调整速度因子
+                if (totalTime < 1000) {
+                    config.speedFactor = 0.9; // 可以更快
+                } else if (totalTime > 2000) {
+                    config.speedFactor = 1.1; // 需要减慢
+                } else {
+                    config.speedFactor = 1.0; // 保持
+                }
+            }
+            
+            // 开始抢单
+            function startOrderGrabber() {
+                if (!config.token) {
+                    addLog('请先配置Token并保存', 'error');
+                    return;
+                }
+                
+                if (config.ids.length === 0) {
+                    addLog('请先配置ids并保存', 'error');
+                    return;
+                }
+                
+                config.isRunning = true;
+                config.stats = {
+                    successCount: 0,
+                    refreshCount: 0,
+                    avgResponse: 0,
+                    lastRequestTime: 0,
+                    lastProcessTime: 0
+                };
+                
+                // 清空性能数据
+                config.performance = {
+                    requestTimes: [],
+                    processTimes: []
+                };
+                
+                // 更新UI
+                indicator.classList.add('active');
+                indicator.nextElementSibling.textContent = '运行中';
+                startBtn.style.display = 'none';
+                stopBtn.style.display = 'inline-flex';
+                updateStatsDisplay();
+                
+                addLog('开始抢单...', 'highlight');
+                addLog(`当前关键词: ${config.keywords.join(', ')}`, 'info');
+                addLog(`黑名单关键词: ${getBlacklistKeywords().join(', ') || '无'}`, 'info');
+                addLog(`目标区域: ${config.areaFilter === 'all' ? '全部' : config.areaFilter + '区'}`, 'info');
+                addLog(`基础延迟: ${config.baseDelay}ms`, 'info');
+                addLog(`基础刷新间隔: ${config.baseInterval/1000}秒`, 'info');
+                
+                // 开始抢单流程
+                ultraFastOrderGrabbing();
+            }
+            
+            // 极速抢单核心逻辑
+            async function ultraFastOrderGrabbing() {
+                while (config.isRunning) {
+                    const cycleStart = Date.now();
+                    let requestStart, requestEnd;
+                    
+                    try {
+                        requestStart = Date.now();
+                        
+                        // 1. 获取订单列表（带缓存检查）
+                        const orders = await fetchOrderListWithCache();
+                        requestEnd = Date.now();
+                        
+                        const requestTime = requestEnd - requestStart;
+                        config.performance.requestTimes.push(requestTime);
+                        
+                        config.stats.refreshCount++;
+                        
+                        // 更新最后刷新时间
+                        const now = new Date();
+                        lastUpdateEl.textContent = `最后更新: ${now.toLocaleTimeString()}`;
+                        
+                        addLog(`获取到 ${orders.length} 个订单 (${requestTime}ms)`, 'refresh');
+                        
+                        // 2. 并行处理订单过滤
+                        const processStart = Date.now();
+                        const matchedOrders = await filterOrdersParallel(orders);
+                        const processTime = Date.now() - processStart;
+                        config.performance.processTimes.push(processTime);
+                        
+                        // 更新性能显示
+                        updatePerformanceDisplay(requestTime, processTime);
+                        
+                        if (matchedOrders.length > 0) {
+                            addLog(`发现 ${matchedOrders.length} 个匹配订单`, 'highlight');
+                            
+                            // 3. 尝试抢单（并行处理前3个订单）
+                            const takeOrderPromises = matchedOrders.slice(0, 3).map(order => 
+                                takeOrder(order.taskId).catch(e => {
+                                    addLog(`抢单出错: ${e.message}`, 'error');
+                                    return null;
+                                })
+                            );
+                            
+                            const results = await Promise.all(takeOrderPromises);
+                            
+                            // 处理抢单结果
+                            for (const result of results) {
+                                if (!config.isRunning) break;
+                                
+                                if (result && result.success) {
+                                    config.stats.successCount++;
+                                    
+                                    addLog(`成功订单: ${result.order.taskName}`, 'order');
+                                    addLog(`账号区分: ${result.order.categoryName}`, 'order');
+                                    addLog(`详情订单: ${result.order.description}`, 'order');
+                                    addLog(`到手金额: ${result.order.outPrice}`, 'order');
+                                    addLog(`用户名字: ${result.order.gameRoleName}`, 'order');
+                                    addLog(`用户 ID: ${result.order.gameRoleId}`, 'order');
+                                    addLog(`用户备注: ${result.order.remark}`, 'order');
+                                    
+                                    saveSuccessRecord(result.order, getDynamicDelay());
+                                    
+                                    // 抢到一单后自动停止
+                                    if (config.stopAfterSuccess) {
+                                        stopOrderGrabber();
+                                        addLog('已自动停止抢单，如需继续请再次点击开始', 'info');
+                                    }
+                                    break; // 成功抢到一个订单后暂停
+                                } else if (result && !result.success && config.autoBlacklist) {
+                                    // 抢单失败且开启了自动黑名单，将订单加入黑名单
+                                    const failedOrder = matchedOrders.find(o => o.taskId === result.taskId);
+                                    if (failedOrder && !config.blacklistOrderIds.includes(failedOrder.taskId)) {
+                                        config.blacklistOrderIds.push(failedOrder.taskId);
+                                        saveConfigToLocal();
+                                        addLog(`订单 ${failedOrder.taskId} 已加入黑名单`, 'warning');
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // 计算平均响应时间
+                        const totalTime = Date.now() - cycleStart;
+                        config.stats.avgResponse = parseFloat(
+                            ((config.stats.avgResponse * (config.stats.refreshCount - 1) + totalTime / 1000) / 
+                            config.stats.refreshCount
+                        ).toFixed(2));
+                        updateStatsDisplay();
+                        
+                        // 动态计算延迟和间隔
+                        const dynamicInterval = getDynamicInterval();
+                        
+                        // 等待动态间隔
+                        await sleep(dynamicInterval);
+                        
+                    } catch (error) {
+                        addLog(`获取订单列表失败: ${error.message}`, 'error');
+                        await sleep(3000); // 出错时等待3秒再重试
+                    }
+                }
+            }
+            
+            // 带缓存的订单列表获取
+            async function fetchOrderListWithCache() {
+                const now = Date.now();
+                
+                // 检查缓存是否有效
+                if (config.cache.orders && now < config.cache.expiry) {
+                    addLog('使用缓存订单数据', 'info');
+                    return config.cache.orders;
+                }
+                
+                // 获取新数据
+                const orders = await fetchOrderList();
+                
+                // 更新缓存
+                config.cache.orders = orders;
+                config.cache.expiry = now + config.cache.duration;
+                
+                return orders;
+            }
+            
+            // 并行订单过滤
+            async function filterOrdersParallel(orders) {
+                return new Promise(resolve => {
+                    // 使用setTimeout避免阻塞主线程
+                    setTimeout(() => {
+                        const blacklistKeywords = getBlacklistKeywords();
+                        const matched = [];
+                        
+                        for (const order of orders) {
+                            // 检查订单状态
+                            if (order.state !== 1) continue;
+                            
+                            // 检查订单是否在黑名单中
+                            if (config.blacklistOrderIds.includes(order.taskId)) continue;
+                            
+                            // 区域筛选
+                            let areaMatch = true;
+                            if (config.areaFilter !== 'all') {
+                                const catName = (order.categoryName || '').toLowerCase();
+                                areaMatch = (config.areaFilter === 'Q' && catName.includes('q区')) || 
+                                            (config.areaFilter === 'V' && catName.includes('v区'));
+                            }
+                            
+                            if (!areaMatch) continue;
+                            
+                            // 关键词筛选
+                            let keywordMatch = true;
+                            if (config.keywords.length > 0) {
+                                const taskName = (order.taskName || '').toLowerCase();
+                                const taskDesc = (order.description || '').toLowerCase();
+                                keywordMatch = config.keywords.some(kw => 
+                                    taskName.includes(kw.toLowerCase()) || 
+                                    taskDesc.includes(kw.toLowerCase())
+                                );
+                            }
+                            
+                            if (!keywordMatch) continue;
+                            
+                            // 黑名单筛选
+                            let blacklistMatch = false;
+                            if (blacklistKeywords.length > 0) {
+                                const remark = (order.remark || '').toLowerCase();
+                                const publisherName = (order.publisherName || '').toLowerCase();
+                                
+                                blacklistMatch = blacklistKeywords.some(kw => 
+                                    remark.includes(kw.toLowerCase()) || 
+                                    publisherName.includes(kw.toLowerCase())
+                                );
+                            }
+                            
+                            if (!blacklistMatch) {
+                                matched.push(order);
+                            }
+                        }
+                        
+                        resolve(matched);
+                    }, 0);
+                });
+            }
+            
+            // 停止抢单
+            function stopOrderGrabber() {
+                config.isRunning = false;
+                
+                // 更新UI
+                indicator.classList.remove('active');
+                indicator.nextElementSibling.textContent = '未运行';
+                startBtn.style.display = 'inline-flex';
+                stopBtn.style.display = 'none';
+                
+                addLog(`已停止抢单 - 共刷新 ${config.stats.refreshCount} 次，抢到 ${config.stats.successCount} 单`, 'warning');
+            }
+            
+            // 获取订单列表
+            async function fetchOrderList() {
+                try {
+                    const headers = {
+                        "token": config.token
+                    };
+                    
+                    const response = await fetch(`${config.apiBaseUrl}/order/list?pageSize=10&pageNum=1&categoryId=0`, {
+                        headers: headers
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP错误! 状态: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (data.code !== 200) {
+                        throw new Error(data.msg || '获取订单失败');
+                    }
+                    
+                    return data.rows || [];
+                } catch (error) {
+                    console.error('获取订单列表出错:', error);
+                    throw error;
+                }
+            }
+            
+            // 抢单
+            async function takeOrder(taskId) {
+                try {
+                    const delay = getDynamicDelay();
+                    addLog(`准备抢单 → 等待 ${delay}ms 延迟...`, 'info');
+                    
+                    // 应用动态延迟
+                    await sleep(delay);
+                    
+                    const headers = {
+                        "token": config.token,
+                        "Content-Type": "application/json"
+                    };
+                    
+                    const data = {
+                        "taskId": taskId,
+                        "ids": config.ids,
+                        "nickname": "自动抢单工具",
+                        "avatar": "https://xiaolatiao.oss-cn-beijing.aliyuncs.com/uploadImg-test/wYp4xWmXfR.jpg"
+                    };
+                    
+                    const response = await fetch(`${config.apiBaseUrl}/order/takeOrder`, {
+                        method: 'POST',
+                        headers: headers,
+                        body: JSON.stringify(data)
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP错误! 状态: ${response.status}`);
+                    }
+                    
+                    const result = await response.json();
+                    
+                    if (result.code === 200) {
+                        // 获取订单详情
+                        const orderDetail = await getOrderDetail(taskId);
+                        return { 
+                            success: true, 
+                            order: orderDetail 
+                        };
+                    } else {
+                        addLog(`抢单失败 → 原因: ${result.msg || '未知错误'}`, 'warning');
+                        return { 
+                            success: false, 
+                            message: result.msg,
+                            taskId: taskId
+                        };
+                    }
+                } catch (error) {
+                    console.error('抢单出错:', error);
+                    addLog(`抢单出错 → ${error.message}`, 'error');
+                    return { 
+                        success: false, 
+                        message: error.message,
+                        taskId: taskId
+                    };
+                }
+            }
+            
+            // 获取订单详情
+            async function getOrderDetail(taskId) {
+                try {
+                    const headers = {
+                        "token": config.token
+                    };
+                    
+                    const response = await fetch(`${config.apiBaseUrl}/order/getInfo?taskId=${taskId}`, {
+                        headers: headers
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP错误! 状态: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (data.code === 200) {
+                        return data.data || {};
+                    } else {
+                        throw new Error(data.msg || '获取详情失败');
+                    }
+                } catch (error) {
+                    console.error('获取详情失败:', error);
+                    addLog(`获取详情失败 → ${error.message}`, 'warning');
+                    return {};
+                }
+            }
+            
+            // 保存成功记录
+            function saveSuccessRecord(order, delayMs) {
+                const record = {
+                    time: new Date().toLocaleString(),
+                    taskId: order.taskId || '未知',
+                    area: order.categoryName || '未知区域',
+                    type: order.taskName || '未知类型',
+                    amount: order.outPrice || '未知',
+                    delay: delayMs + 'ms'
+                };
+                
+                successRecords.unshift(record);
+                // 永久保存记录到独立存储空间
+                localStorage.setItem('permanentRecords', JSON.stringify(successRecords));
+                loadSuccessRecords();
+            }
+            
+            // 加载成功记录
+            function loadSuccessRecords() {
+                const records = successRecords;
+                
+                if (records.length === 0) {
+                    recordsTable.innerHTML = '<tr><td colspan="6">暂无记录</td></tr>';
+                    totalOrdersEl.textContent = '0';
+                    totalAmountEl.textContent = '0';
+                    return;
+                }
+                
+                let html = '';
+                let totalAmount = 0;
+                
+                records.forEach(record => {
+                    html += `
+                        <tr>
+                            <td>${record.time}</td>
+                            <td>${record.taskId}</td>
+                            <td>${record.area}</td>
+                            <td>${record.type}</td>
+                            <td>${record.amount}</td>
+                            <td>${record.delay}</td>
+                        </tr>
+                    `;
+                    
+                    // 计算总金额
+                    if (record.amount && !isNaN(parseFloat(record.amount))) {
+                        totalAmount += parseFloat(record.amount);
+                    }
+                });
+                
+                recordsTable.innerHTML = html;
+                totalOrdersEl.textContent = records.length;
+                totalAmountEl.textContent = totalAmount.toFixed(2);
+            }
+            
+            // 更新统计数据显示
+            function updateStatsDisplay() {
+                successCountEl.textContent = config.stats.successCount;
+                refreshCountEl.textContent = config.stats.refreshCount;
+                avgResponseEl.textContent = config.stats.avgResponse;
+            }
+            
+            // 添加日志
+            function addLog(message, type = 'info') {
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString();
+                
+                const logEntry = document.createElement('div');
+                logEntry.className = `log-entry`;
+                
+                const timeSpan = document.createElement('span');
+                timeSpan.className = 'log-time';
+                timeSpan.textContent = `[${timeStr}]`;
+                
+                const messageSpan = document.createElement('span');
+                messageSpan.className = `log-message ${type}`;
+                messageSpan.textContent = message;
+                
+                logEntry.appendChild(timeSpan);
+                logEntry.appendChild(messageSpan);
+                
+                logStream.appendChild(logEntry);
+                logStream.scrollTop = logStream.scrollHeight;
+                
+                // 限制日志数量
+                if (logStream.children.length > 200) {
+                    logStream.removeChild(logStream.children[0]);
+                }
+            }
+            
+            // 睡眠函数
+            function sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+        }
+    </script>
+</body>
+</html>
