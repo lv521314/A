@@ -3,38 +3,325 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>✨ 小辣条电竞抢单系统 ✨</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>给特别的你 | 表白信</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        :root {
-            --primary: #00d95a;
-            --primary-dark: #00b84a;
-            --primary-light: #4dff8c;
-            --secondary: #2ecc71;
-            --success: #00d95a;
-            --warning: #f39c12;
-            --danger: #e74c3c;
-            --dark: #1a1f2e;
-            --darker: #0d121a;
-            --light: #f8f9fa;
-            --gray: #7f8c8d;
-            --panel-bg: rgba(26, 31, 46, 0.95);
-            --card-bg: rgba(35, 42, 60, 0.85);
-            --border-radius: 12px;
-            --box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            --gradient: linear-gradient(135deg, #00d95a, #2ecc71);
-            --glass-bg: rgba(255, 255, 255, 0.08);
-            --text-primary: #ecf0f1;
-            --text-secondary: #bdc3c7;
-            --neon-glow: 0 0 10px rgba(0, 217, 90, 0.5);
-        }
-        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif;
         }
+        
+        body {
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4, #fbc2eb, #a6c1ee);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            text-align: center;
+            position: relative;
+        }
+        
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .container {
+            max-width: 800px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+            position: relative;
+        }
+        
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .message {
+            font-size: 1.4rem;
+            line-height: 1.8;
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            text-align: left;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .message p {
+            margin-bottom: 15px;
+            animation: fadeIn 1s forwards;
+            opacity: 0;
+        }
+        
+        .message p:nth-child(1) { animation-delay: 0.5s; }
+        .message p:nth-child(2) { animation-delay: 2s; }
+        .message p:nth-child(3) { animation-delay: 4s; }
+        .message p:nth-child(4) { animation-delay: 6s; }
+        
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        
+        .heart-btn {
+            background: #ff4d94;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.4rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px 10px;
+            outline: none;
+            box-shadow: 0 5px 15px rgba(255, 77, 148, 0.4);
+        }
+        
+        .heart-btn:hover {
+            background: #ff2d87;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(255, 77, 148, 0.6);
+        }
+        
+        .heart-btn:active {
+            transform: translateY(0);
+        }
+        
+        .hearts {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .heart {
+            position: absolute;
+            font-size: 1.5rem;
+            color: rgba(255, 77, 148, 0.7);
+            animation: fall linear forwards;
+        }
+        
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .footer {
+            margin-top: 30px;
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .response {
+            display: none;
+            font-size: 2rem;
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            animation: fadeIn 1s forwards;
+        }
+        
+        .music-control {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .music-control i {
+            font-size: 1.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                width: 90%;
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .message {
+                font-size: 1.1rem;
+            }
+            
+            .heart-btn {
+                padding: 12px 30px;
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 飘落的心形 -->
+    <div class="hearts" id="hearts"></div>
+    
+    <!-- 音乐控制 -->
+    <div class="music-control" id="musicControl">
+        <i class="fas fa-music"></i>
+    </div>
+    
+    <!-- 主内容区 -->
+    <div class="container">
+        <h1>❤️ 给特别的你 ❤️</h1>
+        
+        <div class="message">
+            <p>亲爱的，从遇见你的那一刻起，我的世界变得不同寻常。</p>
+            <p>你的笑容像阳光一样温暖，照亮了我生命中的每一个角落。</p>
+            <p>我喜欢你温柔的眼神，喜欢听你说话的声音，喜欢你的一切。</p>
+            <p>和你在一起的每一刻，都是我最珍贵的记忆。</p>
+        </div>
+        
+        <div>
+            <button class="heart-btn" id="yesBtn">
+                <i class="fas fa-heart"></i> 我愿意
+            </button>
+            <button class="heart-btn" id="noBtn">
+                <i class="fas fa-heart-broken"></i> 再想想
+            </button>
+        </div>
+        
+        <div class="response" id="response">
+            <!-- 响应信息将在这里显示 -->
+        </div>
+        
+        <div class="footer">
+            <p>你是我生命中最美丽的意外 ❤️</p>
+        </div>
+    </div>
+    
+    <!-- 背景音乐 -->
+    <audio id="bgMusic" loop>
+        <source src="https://cccimg.com/view.php/e0561648fdc7320622df514d429eb0b0.aac" type="audio/mpeg">
+    </audio>
+    
+    <script>
+        // 创建飘落的心形
+        function createHearts() {
+            const heartsContainer = document.getElementById('hearts');
+            const heartCount = 50;
+            
+            for (let i = 0; i < heartCount; i++) {
+                const heart = document.createElement('div');
+                heart.classList.add('heart');
+                heart.innerHTML = '❤️';
+                
+                // 随机位置和大小
+                const left = Math.random() * 100;
+                const size = Math.random() * 1 + 0.5;
+                const duration = Math.random() * 5 + 5;
+                
+                heart.style.left = `${left}%`;
+                heart.style.fontSize = `${size}rem`;
+                heart.style.animationDuration = `${duration}s`;
+                heart.style.animationDelay = `${Math.random() * 5}s`;
+                
+                heartsContainer.appendChild(heart);
+            }
+        }
+        
+        // 音乐控制
+        const musicControl = document.getElementById('musicControl');
+        const bgMusic = document.getElementById('bgMusic');
+        let musicPlaying = false;
+        
+        musicControl.addEventListener('click', () => {
+            if (musicPlaying) {
+                bgMusic.pause();
+                musicControl.innerHTML = '<i class="fas fa-music"></i>';
+            } else {
+                bgMusic.play().catch(e => console.log('自动播放被阻止，请手动播放'));
+                musicControl.innerHTML = '<i class="fas fa-pause"></i>';
+            }
+            musicPlaying = !musicPlaying;
+        });
+        
+        // 按钮事件
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const response = document.getElementById('response');
+        
+        // 修改"我愿意"按钮事件
+        yesBtn.addEventListener('click', () => {
+            // 显示确认消息
+            response.innerHTML = '❤️ 太棒了！正在为你跳转到惊喜页面... ❤️';
+            response.style.display = 'block';
+            
+            // 3秒后跳转
+            setTimeout(() => {
+                window.location.href = 'https://cccimg.com/view.php/bdf4ee05f328c1c35465fc9f049eac41.png';
+            }, 300);
+        });
+        
+        noBtn.addEventListener('click', () => {
+            // 让按钮移动
+            const maxX = window.innerWidth - noBtn.offsetWidth;
+            const maxY = window.innerHeight - noBtn.offsetHeight;
+            
+            const randomX = Math.floor(Math.random() * maxX);
+            const randomY = Math.floor(Math.random() * maxY);
+            
+            noBtn.style.position = 'absolute';
+            noBtn.style.left = `${randomX}px`;
+            noBtn.style.top = `${randomY}px`;
+            
+            response.innerHTML = '😢 不要这么快拒绝嘛...再考虑一下？';
+            response.style.display = 'block';
+        });
+        
+        // 页面加载完成后初始化
+        window.addEventListener('load', () => {
+            createHearts();
+            
+            // 尝试自动播放音乐（可能需要用户交互）
+            setTimeout(() => {
+                bgMusic.play().catch(e => {
+                    console.log('自动播放被阻止，请手动播放');
+                    musicControl.style.display = 'block';
+                });
+            }, 1000);
+        });
+    </script>
+</body>
+</html>        }
         
         body {
             font-family: 'Noto Sans SC', sans-serif;
